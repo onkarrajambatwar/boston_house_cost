@@ -11,7 +11,7 @@ scalar = pickle.load(open('scalar.pkl','rb'))
 def Home():
     return render_template('home.html')
 
-@app.route('/predict', methods=['POST']) # predict api
+@app.route('/predict_api', methods=['POST']) # predict api
 def predict_api():
     data= request.json()
     print(data)
@@ -20,6 +20,14 @@ def predict_api():
     data = scalar.transform(np.array(list(data.values())).reshape(1, -1))
     output = model.predicat(data)
     return jsonify(output[0])
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = [float(i) for i in request.form.values()]
+    data = np.array(data).reshape(1, -1)
+    data = scalar.transform(data)
+    result = model.predict(data)
+    return render_template('home.html', prediction_text=f"Price is {result[0]}")
 
 if __name__ == '__main__':
     app.run(debug=True)
